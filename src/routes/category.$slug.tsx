@@ -23,7 +23,7 @@ export const Route = createFileRoute("/category/$slug")({
   notFoundComponent: () => (
     <div className="py-24 text-center">Category not found. <Link to="/shop" className="text-primary">Go to shop</Link></div>
   ),
-  errorComponent: ({ error }) => <div className="py-24 text-center">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="py-24 text-center">{error instanceof Error ? error.message : String(error)}</div>,
 });
 
 function CategoryPage() {

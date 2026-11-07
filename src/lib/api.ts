@@ -3,7 +3,7 @@ import { categories, products, type Product, type Category } from "@/data/produc
 
 // When the Laravel API is ready, set VITE_API_URL and swap the mock bodies for:
 //   fetch(`${API_URL}/api/products`).then((r) => r.json()).then((j) => j.data)
-export const API_URL = import.meta.env.VITE_API_URL as string | undefined;
+export const API_URL = import.meta.env["VITE_API_URL"] as string | undefined;
 
 const delay = <T,>(v: T) => new Promise<T>((r) => setTimeout(() => r(v), 50));
 
