@@ -27,7 +27,7 @@ export const Route = createFileRoute("/product/$slug")({
   notFoundComponent: () => (
     <div className="py-24 text-center">Product not found. <Link to="/shop" className="text-primary">Back to shop</Link></div>
   ),
-  errorComponent: ({ error }) => <div className="py-24 text-center">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="py-24 text-center">{error instanceof Error ? error.message : String(error)}</div>,
 });
 
 const tabs = ["Description", "Features", "Backtest", "Reviews"] as const;
