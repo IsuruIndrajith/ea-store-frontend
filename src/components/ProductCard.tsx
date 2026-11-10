@@ -13,10 +13,16 @@ export function ProductArt({ p, large = false }: { p: Product; large?: boolean }
         background: `radial-gradient(circle at 30% 20%, oklch(0.55 0.15 ${p.hue}), oklch(0.2 0.04 ${p.hue}) 70%)`,
       }}
     >
-      <span className="w-fit rounded-md bg-background/60 px-2 py-1 text-xs font-semibold backdrop-blur">{p.platform}</span>
+      <span className="w-fit rounded-md bg-background/60 px-2 py-1 text-xs font-semibold backdrop-blur">
+        {p.platform}
+      </span>
       <div>
-        <p className={`font-display font-bold leading-tight ${large ? "text-4xl" : "text-xl"}`}>{p.name}</p>
-        <p className="text-sm text-foreground/70">{p.market} · {p.version}</p>
+        <p className={`font-display font-bold leading-tight ${large ? "text-4xl" : "text-xl"}`}>
+          {p.name}
+        </p>
+        <p className="text-sm text-foreground/70">
+          {p.market} · {p.version}
+        </p>
       </div>
       {p.growth > 0 && (
         <span className="absolute right-4 top-4 rounded-md bg-background/60 px-2 py-1 text-xs font-bold text-gain backdrop-blur">
@@ -38,7 +44,11 @@ export function ProductCard({ p }: { p: Product }) {
         <ProductArt p={p} />
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-2 pt-4">
-        <Link to="/product/$slug" params={{ slug: p.slug }} className="font-display font-semibold hover:text-primary">
+        <Link
+          to="/product/$slug"
+          params={{ slug: p.slug }}
+          className="font-display font-semibold hover:text-primary"
+        >
           {p.name} {p.version}
         </Link>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -50,10 +60,15 @@ export function ProductCard({ p }: { p: Product }) {
             <p className="text-lg font-bold text-primary">{money(p.sale_price)}</p>
           </div>
           <button
-            onClick={() => { add(p.slug); toast.success(`${p.name} added to cart`); }}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-gold px-3 py-2 text-sm font-semibold text-primary-foreground"
+            disabled={p.is_purchasable === false}
+            onClick={() => {
+              add(p.slug);
+              toast.success(`${p.name} added to cart`);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-gold px-3 py-2 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <ShoppingCart className="h-4 w-4" /> Add
+            <ShoppingCart className="h-4 w-4" />{" "}
+            {p.is_purchasable === false ? "Unavailable" : "Add"}
           </button>
         </div>
       </div>

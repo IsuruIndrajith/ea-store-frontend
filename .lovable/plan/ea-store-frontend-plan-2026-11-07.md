@@ -1,6 +1,6 @@
 # EA Store – Frontend Plan
 
-An original "EA Store" storefront inspired by the reference layout (not a copy of its branding, text or images). Built frontend-only with sample products, ready to plug into your Laravel API later.
+An original "EA Store" storefront inspired by the reference layout (not a copy of its branding, text or images). The storefront uses the Laravel API when `VITE_API_URL` is configured and falls back to sample catalog data otherwise.
 
 Note: this project runs on React + Vite (via TanStack Start). You can keep developing here, or export the code and point it at your Laravel backend.
 
@@ -9,14 +9,15 @@ Note: this project runs on React + Vite (via TanStack Start). You can keep devel
 2. **Shop (/shop)** – product grid with filters (category, platform MT4/MT5, price), sort, search.
 3. **Product (/product/$slug)** – image gallery, title, version, strike-through price + discount badge, Add to Cart, tabs: Description / Features / Backtest results / Reviews, related products.
 4. **Category (/category/$slug)** – filtered grid.
-5. **Cart (/cart)** – line items, quantity, totals, "Checkout" button (placeholder until Laravel).
+5. **Cart (/cart)** – line items, quantity, totals, and authenticated Stripe Checkout.
+6. **Account (/account)** – registration/sign-in, order history, license keys, and private product downloads.
 
 ## Design
 Dark trading theme: near-black navy background, gold accent (fits XAUUSD/gold EAs), green for gains, sharp display font (e.g. Space Grotesk + DM Sans). Product cards with discount ribbon, hover lift.
 
 ## Technical details
-- `src/lib/api.ts`: single API layer with `getProducts`, `getProduct(slug)`, `getCategories`. Currently returns mock data from `src/data/products.ts`; switch to `fetch(VITE_API_URL + "/api/products")` when Laravel is ready.
+- `src/lib/api.ts`: single API layer with `getProducts`, `getProduct(slug)`, `getCategories`. Uses Laravel endpoints when `VITE_API_URL` is set and mock data from `src/data/products.ts` otherwise.
 - Product type mirrors a Laravel JSON resource: `id, slug, name, version, platform, categories[], price, sale_price, images[], description, features[], rating`.
 - Data loaded via route loaders + TanStack Query; cart state in a React context persisted to localStorage.
-- Suggested Laravel endpoints: `GET /api/products`, `GET /api/products/{slug}`, `GET /api/categories`, `POST /api/cart/checkout`, Sanctum for auth.
+- Laravel endpoints: `GET /api/products`, `GET /api/products/{slug}`, `GET /api/categories`, Sanctum-backed account routes, and `POST /api/checkout` for Stripe-hosted payment.
 - Each route gets its own title/description meta. Product images generated as original placeholder artwork.
