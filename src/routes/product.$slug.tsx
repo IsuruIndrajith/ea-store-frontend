@@ -4,13 +4,19 @@ import { useState } from "react";
 import { Check, ShoppingCart, Star, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { productQuery, productsQuery, discount, money } from "@/lib/api";
-import type { ProductExtended, SetReviewData, ProductFaq, SetFile } from "@/lib/api";
+import type { ProductExtended, ProductImage, SetReviewData, ProductFaq, SetFile } from "@/lib/api";
 import { ProductArt, ProductCard } from "@/components/ProductCard";
 import { useCart } from "@/lib/cart";
 
 export const Route = createFileRoute("/product/$slug")({
-  loader: async ({ context, params }) => {
-    const p = await context.queryClient.ensureQueryData(productQuery(params.slug));
+  validateSearch: (s: Record<string, unknown>) => ({
+    preview_token: typeof s["preview_token"] === "string" ? s["preview_token"] : undefined,
+  }),
+  loaderDeps: ({ search }) => ({ previewToken: search.preview_token }),
+  loader: async ({ context, params, deps }) => {
+    const p = await context.queryClient.ensureQueryData(
+      productQuery(params.slug, deps.previewToken),
+    );
     if (!p) throw notFound();
     await context.queryClient.ensureQueryData(productsQuery());
     return p;
@@ -152,9 +158,214 @@ function SimpleTable({ rows }: { rows: Record<string, unknown>[] }) {
   );
 }
 
+// ─── Image gallery ────────────────────────────────────────────────────────────
+
+function ImageGallery({ images }: { images: ProductImage[] }) {
+  const [active, setActive] = useState(0);
+  if (!images.length) return null;
+  const main = images[active];
+  return (
+    <div className="mt-10 space-y-3">
+      <div className="overflow-hidden rounded-xl border bg-card">
+        <img
+          src={main.url}
+          alt={main.alt_text ?? main.caption ?? "Product image"}
+          className="w-full object-cover max-h-[480px]"
+        />
+        {main.caption && (
+          <p className="px-4 py-2 text-xs text-muted-foreground border-t">{main.caption}</p>
+        )}
+      </div>
+      {images.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {images.map((img, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              className={`flex-shrink-0 h-16 w-16 overflow-hidden rounded-lg border-2 transition-colors ${
+                i === active ? "border-primary" : "border-transparent"
+              }`}
+            >
+              <img
+                src={img.url}
+                alt={img.alt_text ?? `Thumbnail ${i + 1}`}
+                className="h-full w-full object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Markdown renderer ───────────────────────────────────────────────────────
+
+function Inline({ t }: { t: string }) {
+  const parts = t.split(/(\*\*[^*]+\*\*)/g);
+  if (parts.length === 1) return <>{t}</>;
+  return (
+    <>
+      {parts.map((p, i) =>
+        p.startsWith("**") && p.endsWith("**") ? (
+          <strong key={i}>{p.slice(2, -2)}</strong>
+        ) : (
+          p
+        ),
+      )}
+    </>
+  );
+}
+
+function MarkdownBlock({ md, className }: { md: string; className?: string }) {
+  if (!md?.trim()) return null;
+
+  type Block =
+    | { type: "h2"; text: string }
+    | { type: "h3"; text: string }
+    | { type: "ul"; items: string[] }
+    | { type: "ol"; items: string[] }
+    | { type: "table"; rows: string[][] }
+    | { type: "p"; text: string };
+
+  const blocks: Block[] = [];
+  let ulBuf: string[] | null = null;
+  let olBuf: string[] | null = null;
+  let tableBuf: string[][] | null = null;
+
+  const flushLists = () => {
+    if (ulBuf) { blocks.push({ type: "ul", items: ulBuf }); ulBuf = null; }
+    if (olBuf) { blocks.push({ type: "ol", items: olBuf }); olBuf = null; }
+  };
+  const flushTable = () => {
+    if (tableBuf) { blocks.push({ type: "table", rows: tableBuf }); tableBuf = null; }
+  };
+
+  for (const line of md.split("\n")) {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith("|")) {
+      const cells = trimmed.slice(1, -1).split("|").map((c) => c.trim());
+      if (cells.every((c) => /^[-:\s]+$/.test(c))) continue; // separator row
+      flushLists();
+      if (!tableBuf) tableBuf = [];
+      tableBuf.push(cells);
+      continue;
+    }
+    flushTable();
+
+    if (!trimmed) { flushLists(); continue; }
+
+    if (trimmed.startsWith("### ")) {
+      flushLists();
+      blocks.push({ type: "h3", text: trimmed.slice(4) });
+    } else if (trimmed.startsWith("## ")) {
+      flushLists();
+      blocks.push({ type: "h2", text: trimmed.slice(3) });
+    } else if (/^[-*] /.test(trimmed)) {
+      if (olBuf) { blocks.push({ type: "ol", items: olBuf }); olBuf = null; }
+      if (!ulBuf) ulBuf = [];
+      ulBuf.push(trimmed.slice(2));
+    } else if (/^\d+\.\s/.test(trimmed)) {
+      if (ulBuf) { blocks.push({ type: "ul", items: ulBuf }); ulBuf = null; }
+      if (!olBuf) olBuf = [];
+      olBuf.push(trimmed.replace(/^\d+\.\s+/, ""));
+    } else {
+      flushLists();
+      blocks.push({ type: "p", text: trimmed });
+    }
+  }
+  flushLists();
+  flushTable();
+
+  return (
+    <div className={`space-y-3 ${className ?? ""}`}>
+      {blocks.map((b, i) => {
+        if (b.type === "h2")
+          return <h3 key={i} className="font-bold text-foreground mt-4">{b.text}</h3>;
+        if (b.type === "h3")
+          return <h4 key={i} className="font-semibold text-foreground mt-3 text-sm">{b.text}</h4>;
+        if (b.type === "ul")
+          return (
+            <ul key={i} className="list-disc list-inside space-y-1">
+              {b.items.map((it, j) => (
+                <li key={j} className="text-sm text-muted-foreground">
+                  <Inline t={it} />
+                </li>
+              ))}
+            </ul>
+          );
+        if (b.type === "ol")
+          return (
+            <ol key={i} className="list-decimal list-inside space-y-1">
+              {b.items.map((it, j) => (
+                <li key={j} className="text-sm text-muted-foreground">
+                  <Inline t={it} />
+                </li>
+              ))}
+            </ol>
+          );
+        if (b.type === "table") {
+          const [header, ...rows] = b.rows;
+          if (!header?.length) return null;
+          return (
+            <div key={i} className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr>
+                    {header.map((h, j) => (
+                      <th key={j} className="text-left px-3 py-2 border-b bg-muted/30 font-medium">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, ri) => (
+                    <tr key={ri} className="border-b last:border-0 hover:bg-muted/20">
+                      {row.map((cell, ci) => (
+                        <td key={ci} className="px-3 py-2 text-muted-foreground">
+                          {cell}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        }
+        return (
+          <p key={i} className="leading-relaxed text-sm text-muted-foreground">
+            <Inline t={b.text} />
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Tab contents ─────────────────────────────────────────────────────────────
 
 function DescriptionTab({ ext, description }: { ext?: ProductExtended; description: string }) {
+  // AI-generated markdown description takes priority
+  if (ext?.description_md) {
+    return (
+      <div className="max-w-3xl space-y-8">
+        <section>
+          <MarkdownBlock md={ext.description_md} />
+        </section>
+        {!!ext.faqs?.length && <FaqList faqs={ext.faqs} />}
+        {ext.telegram_support_line && (
+          <section className="rounded-xl border bg-card p-4 text-sm text-muted-foreground">
+            {ext.telegram_support_line}
+          </section>
+        )}
+      </div>
+    );
+  }
+
+  // Legacy manually-filled structure
   if (!ext?.intro && !ext?.key_features && !ext?.why_buy_this) {
     return <p className="max-w-3xl leading-relaxed">{description}</p>;
   }
@@ -260,60 +471,73 @@ function SetReviewTab({ sr, vendorUrl }: { sr?: SetReviewData; vendorUrl?: strin
       </p>
     );
   }
+
+  const renderTableField = (value: string | Record<string, unknown>[] | undefined) => {
+    if (!value) return null;
+    return typeof value === "string"
+      ? <MarkdownBlock md={value} />
+      : <SimpleTable rows={value} />;
+  };
+
   return (
     <div className="max-w-3xl space-y-8">
-      {sr.seo_introduction && (
-        <p className="leading-relaxed text-muted-foreground">{sr.seo_introduction}</p>
-      )}
-      {!!sr.specs_table?.length && (
+      {sr.seo_introduction && <MarkdownBlock md={sr.seo_introduction} />}
+
+      {sr.specs_table != null && (
         <section>
           <h3 className="font-semibold text-foreground mb-3">EA Specifications</h3>
-          <SimpleTable rows={sr.specs_table as Record<string, unknown>[]} />
+          {renderTableField(sr.specs_table)}
         </section>
       )}
-      {!!sr.requirements_table?.length && (
+
+      {sr.requirements_table != null && (
         <section>
           <h3 className="font-semibold text-foreground mb-3">Requirements</h3>
-          <SimpleTable rows={sr.requirements_table as Record<string, unknown>[]} />
+          {renderTableField(sr.requirements_table)}
         </section>
       )}
+
       {!!sr.important_parameters?.length && (
         <section>
           <h3 className="font-semibold text-foreground mb-3">Important Parameters</h3>
-          <SimpleTable rows={sr.important_parameters as Record<string, unknown>[]} />
+          <SimpleTable rows={sr.important_parameters} />
         </section>
       )}
+
       {!!sr.set_files?.length && (
         <section>
           <h3 className="font-semibold text-foreground mb-3">Set Files</h3>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {sr.set_files.map((sf: SetFile, i: number) => (
               <div key={i} className="rounded-xl border bg-card p-4">
-                <p className="font-medium">{sf.name}</p>
+                <p className="font-medium mb-2">{sf.name}</p>
                 {sf.purpose && (
-                  <p className="text-sm text-muted-foreground mt-1">{sf.purpose}</p>
+                  <p className="text-sm text-muted-foreground mb-2">{sf.purpose}</p>
                 )}
-                {sf.differences && (
-                  <p className="text-sm mt-2">
-                    <span className="font-medium">Differences: </span>
-                    <span className="text-muted-foreground">{sf.differences}</span>
-                  </p>
-                )}
-                {sf.limitations && (
-                  <p className="text-sm mt-1">
-                    <span className="font-medium">Limitations: </span>
-                    <span className="text-muted-foreground">{sf.limitations}</span>
-                  </p>
+                {sf.body_md ? (
+                  <MarkdownBlock md={sf.body_md} />
+                ) : (
+                  <>
+                    {sf.differences && (
+                      <p className="text-sm mt-2">
+                        <span className="font-medium">Differences: </span>
+                        <span className="text-muted-foreground">{sf.differences}</span>
+                      </p>
+                    )}
+                    {sf.limitations && (
+                      <p className="text-sm mt-1">
+                        <span className="font-medium">Limitations: </span>
+                        <span className="text-muted-foreground">{sf.limitations}</span>
+                      </p>
+                    )}
+                  </>
                 )}
                 {!!sf.risk_params?.length && (
                   <div className="mt-2">
                     <p className="text-xs font-medium text-muted-foreground mb-1">Risk params:</p>
                     <div className="flex flex-wrap gap-1">
                       {sf.risk_params.map((rp, j) => (
-                        <span
-                          key={j}
-                          className="text-xs bg-muted px-2 py-0.5 rounded-full"
-                        >
+                        <span key={j} className="text-xs bg-muted px-2 py-0.5 rounded-full">
                           {rp}
                         </span>
                       ))}
@@ -325,57 +549,127 @@ function SetReviewTab({ sr, vendorUrl }: { sr?: SetReviewData; vendorUrl?: strin
           </div>
         </section>
       )}
-      {!!sr.set_comparison_table?.length && (
+
+      {sr.set_comparison_table != null && (
         <section>
           <h3 className="font-semibold text-foreground mb-3">Set File Comparison</h3>
-          <SimpleTable rows={sr.set_comparison_table as Record<string, unknown>[]} />
+          {renderTableField(sr.set_comparison_table)}
         </section>
       )}
+
       {!!sr.load_set_steps?.length && (
         <section>
           <h3 className="font-semibold text-foreground mb-3">How to Load a Set File</h3>
-          <ol className="space-y-2">
+          <div className="space-y-4">
             {sr.load_set_steps.map((step, i) => {
-              const text =
-                typeof step === "string"
-                  ? step
-                  : ((step as Record<string, unknown>)?.step ??
-                    (step as Record<string, unknown>)?.text ??
-                    "") as string;
+              if (typeof step === "string") {
+                return (
+                  <div key={i} className="flex gap-3 text-sm">
+                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
+                      {i + 1}
+                    </span>
+                    <span className="text-muted-foreground pt-0.5">{step}</span>
+                  </div>
+                );
+              }
+              const s = step as Record<string, unknown>;
+              // {platform, steps} from generated content
+              if (s["platform"] && s["steps"]) {
+                return (
+                  <div key={i} className="rounded-xl border bg-card p-4">
+                    <p className="font-semibold text-sm mb-3">{String(s["platform"])}</p>
+                    <MarkdownBlock md={String(s["steps"])} />
+                  </div>
+                );
+              }
+              // Legacy {step, text} objects
+              const text = (s["step"] ?? s["text"] ?? "") as string;
               return (
-                <li key={i} className="flex gap-3 text-sm">
+                <div key={i} className="flex gap-3 text-sm">
                   <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
                     {i + 1}
                   </span>
                   <span className="text-muted-foreground pt-0.5">{text}</span>
-                </li>
+                </div>
               );
             })}
-          </ol>
+          </div>
         </section>
       )}
-      {!!sr.customization_guidance?.length && (
+
+      {sr.customization_guidance != null && (
         <section>
           <h3 className="font-semibold text-foreground mb-3">Customization Guidance</h3>
-          <BulletList items={sr.customization_guidance} />
+          {typeof sr.customization_guidance === "string" ? (
+            <MarkdownBlock md={sr.customization_guidance} />
+          ) : (
+            <BulletList items={sr.customization_guidance} />
+          )}
         </section>
       )}
-      {!!sr.who_should_use?.length && (
+
+      {sr.customization_cautions && (
+        <section>
+          <h3 className="font-semibold text-foreground mb-3">Cautions</h3>
+          <MarkdownBlock md={sr.customization_cautions} />
+        </section>
+      )}
+
+      {sr.config_strengths_limitations && (
+        <section>
+          <h3 className="font-semibold text-foreground mb-3">Strengths &amp; Limitations</h3>
+          <MarkdownBlock md={sr.config_strengths_limitations} />
+        </section>
+      )}
+
+      {sr.who_should_use != null && (
         <section>
           <h3 className="font-semibold text-foreground mb-3">Who Should Use This</h3>
-          <BulletList items={sr.who_should_use} />
+          {typeof sr.who_should_use === "string" ? (
+            <MarkdownBlock md={sr.who_should_use} />
+          ) : (
+            <BulletList items={sr.who_should_use} />
+          )}
         </section>
       )}
+
+      {!!sr.detailed_parameter_analysis?.length && (
+        <section>
+          <h3 className="font-semibold text-foreground mb-3">Parameter Analysis</h3>
+          <div className="space-y-6">
+            {sr.detailed_parameter_analysis.map((g, i) => (
+              <div key={i}>
+                {g.group && (
+                  <h4 className="font-medium text-sm text-foreground mb-2">{g.group}</h4>
+                )}
+                {g.table && <MarkdownBlock md={g.table} />}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {sr.final_verdict && (
         <section className="rounded-xl border bg-card p-5">
           <h3 className="font-semibold text-foreground mb-2">Final Verdict</h3>
-          <p className="leading-relaxed text-muted-foreground">{sr.final_verdict}</p>
+          <MarkdownBlock md={sr.final_verdict} />
         </section>
       )}
+
       {sr.risk_disclaimer && (
-        <p className="text-xs text-muted-foreground border-t pt-4">{sr.risk_disclaimer}</p>
+        <div className="text-xs text-muted-foreground border-t pt-4">
+          <MarkdownBlock md={sr.risk_disclaimer} />
+        </div>
       )}
+
       {!!sr.faqs?.length && <FaqList faqs={sr.faqs} />}
+
+      {!!sr.images?.length && (
+        <section>
+          <h3 className="font-semibold text-foreground mb-3">Set File Images</h3>
+          <ImageGallery images={sr.images} />
+        </section>
+      )}
     </div>
   );
 }
@@ -502,6 +796,10 @@ function ProductPage() {
           )}
         </div>
       </div>
+
+      {!!p.extended?.images?.length && (
+        <ImageGallery images={p.extended.images} />
+      )}
 
       <div className="mt-16">
         <div className="flex gap-2 border-b overflow-x-auto">
