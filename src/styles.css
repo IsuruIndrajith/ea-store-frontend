@@ -34,35 +34,46 @@
   --color-ring: var(--ring);
 }
 
+/* ── ForexEA360 dark navy + teal palette ───────────────────────────────── */
 :root {
-  --radius: 0.75rem;
-  --background: oklch(0.16 0.025 255);
-  --foreground: oklch(0.96 0.01 90);
-  --card: oklch(0.21 0.03 255);
-  --card-foreground: oklch(0.96 0.01 90);
-  --popover: oklch(0.21 0.03 255);
-  --popover-foreground: oklch(0.96 0.01 90);
-  --primary: oklch(0.8 0.15 80);
-  --primary-foreground: oklch(0.18 0.03 255);
-  --secondary: oklch(0.26 0.035 255);
-  --secondary-foreground: oklch(0.96 0.01 90);
-  --muted: oklch(0.24 0.03 255);
-  --muted-foreground: oklch(0.7 0.03 250);
-  --accent: oklch(0.28 0.04 255);
-  --accent-foreground: oklch(0.96 0.01 90);
-  --destructive: oklch(0.63 0.22 25);
+  --radius: 0.625rem;
+
+  /* Surfaces */
+  --background:        oklch(0.12 0.03 243);   /* #0A1628 deep navy */
+  --foreground:        oklch(0.97 0.005 240);  /* near-white */
+  --card:              oklch(0.16 0.04 243);   /* #0F2035 card surface */
+  --card-foreground:   oklch(0.97 0.005 240);
+  --popover:           oklch(0.16 0.04 243);
+  --popover-foreground: oklch(0.97 0.005 240);
+
+  /* Brand — teal/mint replaces gold */
+  --primary:           oklch(0.83 0.18 160);   /* #00E5A0 teal */
+  --primary-foreground: oklch(0.12 0.03 243);  /* dark navy text on teal */
+
+  /* Supporting surfaces */
+  --secondary:         oklch(0.20 0.04 243);
+  --secondary-foreground: oklch(0.97 0.005 240);
+  --muted:             oklch(0.19 0.035 243);
+  --muted-foreground:  oklch(0.57 0.04 240);   /* #6B8099 */
+  --accent:            oklch(0.20 0.04 243);
+  --accent-foreground: oklch(0.97 0.005 240);
+
+  /* Utility */
+  --destructive:       oklch(0.63 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --gain: oklch(0.75 0.17 155);
-  --border: oklch(0.3 0.03 255);
-  --input: oklch(0.3 0.03 255);
-  --ring: oklch(0.8 0.15 80);
-  --gradient-gold: linear-gradient(135deg, oklch(0.85 0.14 85), oklch(0.7 0.16 65));
-  --shadow-gold: 0 20px 40px -20px color-mix(in oklab, var(--primary) 50%, transparent);
+  --gain:              oklch(0.83 0.18 160);   /* same teal for positive numbers */
+  --border:            oklch(0.24 0.05 240);   /* subtle navy border */
+  --input:             oklch(0.24 0.05 240);
+  --ring:              oklch(0.83 0.18 160);
+
+  /* Gradient — teal, used by bg-gold / text-gold / shadow-gold utilities */
+  --gradient-gold: linear-gradient(135deg, oklch(0.87 0.17 162), oklch(0.74 0.20 152));
+  --shadow-gold:   0 20px 40px -20px color-mix(in oklab, var(--primary) 45%, transparent);
 }
 
-@utility bg-gold { background-image: var(--gradient-gold); }
+@utility bg-gold    { background-image: var(--gradient-gold); }
 @utility shadow-gold { box-shadow: var(--shadow-gold); }
-@utility text-gold {
+@utility text-gold  {
   background-image: var(--gradient-gold);
   -webkit-background-clip: text;
   background-clip: text;

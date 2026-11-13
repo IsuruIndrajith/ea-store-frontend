@@ -18,10 +18,10 @@ import {
 export const Route = createFileRoute("/account")({
   head: () => ({
     meta: [
-      { title: "Your Account — EA Store" },
+      { title: "Your Account — ForexEA360" },
       {
         name: "description",
-        content: "Manage your EA Store account, orders, and product licenses.",
+        content: "Manage your ForexEA360 account, orders, and product licenses.",
       },
     ],
   }),

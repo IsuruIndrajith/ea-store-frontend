@@ -10,9 +10,9 @@ import { useCart } from "@/lib/cart";
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
-      { title: "Your Cart — EA Store" },
+      { title: "Your Cart — ForexEA360" },
       { name: "description", content: "Review the Expert Advisors in your cart." },
-      { property: "og:title", content: "Your Cart — EA Store" },
+      { property: "og:title", content: "Your Cart — ForexEA360" },
       { property: "og:description", content: "Review the Expert Advisors in your cart." },
     ],
   }),

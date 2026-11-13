@@ -81,8 +81,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "EA Store — Forex Expert Advisors for MT4 & MT5" },
-      { name: "description", content: "Shop Forex Expert Advisors, indicators and trading tools for MT4 and MT5." },
+      { title: "ForexEA360 — Expert Advisors for MT4 & MT5" },
+      { name: "description", content: "Browse, test and run Forex Expert Advisors for MT4 and MT5. Professional EAs, indicators and trading tools." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

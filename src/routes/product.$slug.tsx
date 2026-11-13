@@ -25,8 +25,8 @@ export const Route = createFileRoute("/product/$slug")({
     meta: [
       {
         title: loaderData
-          ? `${loaderData.meta_title ?? loaderData.name + " " + loaderData.version} — EA Store`
-          : "Product — EA Store",
+          ? `${loaderData.meta_title ?? loaderData.name + " " + loaderData.version} — ForexEA360`
+          : "Product — ForexEA360",
       },
       {
         name: "description",
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/product/$slug")({
       },
       {
         property: "og:title",
-        content: loaderData ? `${loaderData.name} — EA Store` : "Product — EA Store",
+        content: loaderData ? `${loaderData.name} — ForexEA360` : "Product — ForexEA360",
       },
       {
         property: "og:description",
@@ -771,7 +771,7 @@ function ProductPage() {
               add(p.slug);
               toast.success(`${p.name} added to cart`);
             }}
-            className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gold px-6 py-4 font-semibold text-primary-foreground shadow-gold disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 font-semibold text-primary-foreground shadow-gold transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ShoppingCart className="h-5 w-5" />{" "}
             {p.is_purchasable === false ? "Unavailable" : "Add to Cart"}

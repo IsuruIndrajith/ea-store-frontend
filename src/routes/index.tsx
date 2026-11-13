@@ -1,23 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ShieldCheck, RefreshCw, Zap, Headphones } from "lucide-react";
-import hero from "@/assets/hero.jpg";
+import { ChevronRight } from "lucide-react";
 import { productsQuery, categoriesQuery } from "@/lib/api";
 import { ProductCard } from "@/components/ProductCard";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "EA Store — Trade Smarter With Forex Expert Advisors" },
+      { title: "ForexEA360 — Automate Your Forex Strategy" },
       {
         name: "description",
         content:
-          "Professional Forex EAs, MT4/MT5 indicators and trading tools at discounted prices.",
+          "Discover, test and run Expert Advisors for MT4 and MT5 with professional guides and tools.",
       },
-      { property: "og:title", content: "EA Store — Trade Smarter With Forex EAs" },
+      { property: "og:title", content: "ForexEA360 — Automate Your Forex Strategy" },
       {
         property: "og:description",
-        content: "Professional Forex EAs, MT4/MT5 indicators and trading tools.",
+        content: "Professional Forex EAs, indicators and trading tools.",
       },
     ],
   }),
@@ -30,154 +29,236 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+// ─── Chart illustration ───────────────────────────────────────────────────────
+
+function ChartIllustration() {
+  // Each candle: [x, wickTop, bodyTop, bodyBottom, wickBottom, bullish]
+  const candles: [number, number, number, number, number, boolean][] = [
+    [32,  208, 210, 218, 220, false],
+    [62,  200, 196, 207, 210, true ],
+    [92,  191, 187, 198, 202, true ],
+    [122, 180, 177, 188, 192, true ],
+    [152, 168, 165, 176, 181, true ],
+    [182, 154, 151, 162, 168, true ],
+    [212, 139, 136, 148, 154, true ],
+    [242, 121, 118, 132, 139, true ],
+    [272, 102, 99,  114, 121, true ],
+    [302, 80,  77,  94,  102, true ],
+    [332, 55,  52,  70,  80,  true ],
+    [362, 30,  27,  46,  55,  true ],
+  ];
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-6 backdrop-blur">
+      {/* Subtle grid */}
+      <svg viewBox="0 0 400 240" className="w-full" aria-hidden="true">
+        {/* Horizontal grid lines */}
+        {[0, 1, 2, 3, 4].map((i) => (
+          <line
+            key={i}
+            x1="0" y1={i * 56 + 16}
+            x2="400" y2={i * 56 + 16}
+            stroke="rgba(255,255,255,0.04)"
+            strokeWidth="1"
+          />
+        ))}
+
+        {/* Dashed trend line */}
+        <polyline
+          points="32,214 92,195 152,172 212,142 272,110 332,65 380,32"
+          fill="none"
+          stroke="#00E5A0"
+          strokeWidth="1.8"
+          strokeDasharray="6 5"
+          strokeLinecap="round"
+          opacity="0.7"
+        />
+
+        {/* Candlesticks */}
+        {candles.map(([x, wt, bt, bb, wb, bull]) => (
+          <g key={x}>
+            {/* Wick */}
+            <line
+              x1={x} y1={wt} x2={x} y2={wb}
+              stroke={bull ? "#00E5A0" : "rgba(255,255,255,0.35)"}
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+            {/* Body */}
+            <rect
+              x={x - 7}
+              y={bt}
+              width={14}
+              height={Math.max(bb - bt, 2)}
+              rx="2"
+              fill={bull ? "rgba(0,229,160,0.85)" : "rgba(255,255,255,0.12)"}
+              stroke={bull ? "#00E5A0" : "rgba(255,255,255,0.35)"}
+              strokeWidth="1"
+            />
+          </g>
+        ))}
+      </svg>
+      <p className="mt-2 text-center text-xs text-muted-foreground">Illustrative chart only.</p>
+    </div>
+  );
+}
+
+// ─── How it works steps ───────────────────────────────────────────────────────
+
+const steps = [
+  {
+    num: "01",
+    title: "Browse Expert Advisors",
+    desc: "Explore EAs for MetaTrader by strategy, pair and timeframe, with clear descriptions.",
+  },
+  {
+    num: "02",
+    title: "Test before you trade",
+    desc: "Compare backtests and run any EA on a demo account first.",
+  },
+  {
+    num: "03",
+    title: "Set up with confidence",
+    desc: "Step-by-step guides for installing, configuring and monitoring your EA.",
+  },
+];
+
 const faqs = [
   [
     "What is an Expert Advisor?",
-    "An EA is an automated trading program that runs inside MetaTrader 4 or 5 and opens/closes trades for you.",
+    "An EA is an automated trading program that runs inside MetaTrader 4 or 5 and opens/closes trades automatically according to its strategy.",
   ],
   [
     "How do I receive my EA?",
-    "After checkout you get an instant download link plus set files and an installation guide.",
+    "After checkout you get an instant download link plus optimised set files and a step-by-step installation guide.",
   ],
-  ["Do updates cost extra?", "No. Every purchase includes free lifetime updates."],
+  ["Do updates cost extra?", "No. Every purchase includes free lifetime updates and support."],
 ];
+
+// ─── Page component ───────────────────────────────────────────────────────────
 
 function Index() {
   const { data: products } = useSuspenseQuery(productsQuery());
   const { data: cats } = useSuspenseQuery(categoriesQuery());
+
   return (
     <>
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 lg:grid-cols-2 lg:py-24">
         <div>
-          <p className="mb-4 inline-block rounded-full border px-3 py-1 text-xs uppercase tracking-widest text-primary">
-            Smart Forex Trading Solutions
-          </p>
-          <h1 className="text-5xl font-bold leading-[1.05] sm:text-6xl">
-            Trade Smarter With <span className="text-gold">Powerful Forex EAs</span>
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <span className="text-xs font-semibold tracking-wide text-primary">
+              Smart Forex Trading Solutions
+            </span>
+          </div>
+          <h1 className="text-5xl font-bold leading-[1.08] sm:text-[3.5rem]">
+            Automate your<br />
+            forex strategy,<br />
+            <span className="text-primary">around the clock.</span>
           </h1>
-          <p className="mt-6 max-w-lg text-lg text-muted-foreground">
-            Professionally developed Expert Advisors, MT4/MT5 indicators and trading tools designed
-            to simplify your trading.
+          <p className="mt-5 max-w-md text-lg leading-relaxed text-muted-foreground">
+            Discover, test and run Expert Advisors with the guides and tools to use them well.
           </p>
-          <div className="mt-8 flex gap-3">
+          <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/shop"
-              className="rounded-lg bg-gold px-6 py-3 font-semibold text-primary-foreground shadow-gold"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground transition hover:opacity-90"
             >
-              Explore EAs
+              Browse Expert Advisors
             </Link>
             <Link
-              to="/category/$slug"
-              params={{ slug: "gold-ea" }}
-              className="rounded-lg border px-6 py-3 font-semibold hover:border-primary"
+              to="/shop"
+              className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 font-semibold transition hover:border-primary hover:text-primary"
             >
-              Gold EAs
+              How it works <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="mt-10 flex gap-8">
-            {[
-              ["MT4", "Supported"],
-              ["MT5", "Supported"],
-              ["24/7", "Access"],
-            ].map(([a, b]) => (
-              <div key={a}>
-                <p className="font-display text-2xl font-bold">{a}</p>
-                <p className="text-sm text-muted-foreground">{b}</p>
-              </div>
+        </div>
+        <ChartIllustration />
+      </section>
+
+      {/* ── Category chips ────────────────────────────────────────────────── */}
+      {cats.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-4">
+          <div className="flex flex-wrap gap-2">
+            {cats.map((c) => (
+              <Link
+                key={c.slug}
+                to="/category/$slug"
+                params={{ slug: c.slug }}
+                className="rounded-full border border-border/60 bg-card/50 px-4 py-1.5 text-sm text-muted-foreground transition hover:border-primary hover:text-primary"
+              >
+                {c.name}
+              </Link>
             ))}
           </div>
-        </div>
-        <div className="relative">
-          <img
-            src={hero}
-            alt="Gold trading chart with AI"
-            width={1280}
-            height={960}
-            className="rounded-2xl border"
-          />
-          <div className="absolute -bottom-6 left-6 rounded-xl border bg-card/90 p-4 backdrop-blur sm:w-72">
-            <div className="flex items-center justify-between">
-              <p className="font-display font-semibold">Trading Performance</p>
-              <span className="flex items-center gap-1 text-xs text-gain">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-gain" />
-                LIVE
-              </span>
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <p className="text-muted-foreground">Growth</p>
-                <p className="font-bold text-gain">+24.86%</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Market</p>
-                <p className="font-bold">XAUUSD</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Platform</p>
-                <p className="font-bold">MT5</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Status</p>
-                <p className="font-bold">Active</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section className="mx-auto max-w-7xl px-4 py-8">
-        <div className="flex flex-wrap gap-2">
-          {cats.map((c) => (
-            <Link
-              key={c.slug}
-              to="/category/$slug"
-              params={{ slug: c.slug }}
-              className="rounded-full border bg-card px-4 py-2 text-sm hover:border-primary hover:text-primary"
+      {/* ── How it works ──────────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 py-16">
+        <div className="grid gap-4 sm:grid-cols-3">
+          {steps.map((s) => (
+            <div
+              key={s.num}
+              className="rounded-2xl border border-border/60 bg-card p-6 transition hover:border-primary/40"
             >
-              {c.name}
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <div className="mb-8 flex items-end justify-between">
-          <h2 className="text-3xl font-bold">Best Forex EA 2026</h2>
-          <Link to="/shop" className="text-sm text-primary">
-            View all →
-          </Link>
-        </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {products.slice(0, 8).map((p) => (
-            <ProductCard key={p.id} p={p} />
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          [Zap, "Instant delivery", "Download right after payment."],
-          [RefreshCw, "Free updates", "Lifetime version upgrades."],
-          [ShieldCheck, "Secure checkout", "Encrypted payments."],
-          [Headphones, "24/7 support", "Help with install & setup."],
-        ].map(([Icon, t, d]) => {
-          const I = Icon as typeof Zap;
-          return (
-            <div key={t as string} className="rounded-2xl border bg-card p-6">
-              <I className="h-6 w-6 text-primary" />
-              <p className="mt-4 font-display font-semibold">{t as string}</p>
-              <p className="text-sm text-muted-foreground">{d as string}</p>
+              <p className="font-display text-sm font-semibold text-primary/60">{s.num}</p>
+              <h3 className="mt-3 font-display text-lg font-bold text-foreground">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </section>
 
-      <section className="mx-auto max-w-3xl px-4 py-12">
-        <h2 className="mb-6 text-center text-3xl font-bold">FAQ</h2>
+      {/* ── Products ──────────────────────────────────────────────────────── */}
+      {products.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 py-8">
+          <div className="mb-8 flex items-end justify-between">
+            <h2 className="text-3xl font-bold">Top Expert Advisors</h2>
+            <Link to="/shop" className="text-sm text-primary transition hover:underline">
+              View all →
+            </Link>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {products.slice(0, 8).map((p) => (
+              <ProductCard key={p.id} p={p} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── Trust bar ─────────────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 py-10">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["⚡", "Instant delivery", "Download right after payment."],
+            ["🔄", "Free updates", "Lifetime version upgrades."],
+            ["🔒", "Secure checkout", "Encrypted payments."],
+            ["💬", "24/7 support", "Help with install & setup."],
+          ].map(([icon, t, d]) => (
+            <div key={t} className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card p-5">
+              <span className="text-2xl leading-none">{icon}</span>
+              <div>
+                <p className="font-display font-semibold text-sm">{t}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{d}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FAQ ───────────────────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-3xl px-4 py-16">
+        <h2 className="mb-8 text-center text-3xl font-bold">Frequently Asked Questions</h2>
         {faqs.map(([q, a]) => (
-          <details key={q} className="mb-3 rounded-xl border bg-card p-5">
-            <summary className="cursor-pointer font-semibold">{q}</summary>
-            <p className="mt-3 text-muted-foreground">{a}</p>
+          <details
+            key={q}
+            className="mb-3 rounded-xl border border-border/60 bg-card p-5 open:border-primary/40"
+          >
+            <summary className="cursor-pointer select-none font-semibold">{q}</summary>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{a}</p>
           </details>
         ))}
       </section>

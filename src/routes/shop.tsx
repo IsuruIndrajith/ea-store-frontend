@@ -15,12 +15,12 @@ export const Route = createFileRoute("/shop")({
   validateSearch: (s) => searchSchema.parse(s),
   head: () => ({
     meta: [
-      { title: "Shop Forex EAs & Indicators — EA Store" },
+      { title: "Expert Advisors — ForexEA360" },
       {
         name: "description",
         content: "Browse all Expert Advisors and indicators for MT4 and MT5.",
       },
-      { property: "og:title", content: "Shop — EA Store" },
+      { property: "og:title", content: "Expert Advisors — ForexEA360" },
       {
         property: "og:description",
         content: "Browse all Expert Advisors and indicators for MT4 and MT5.",

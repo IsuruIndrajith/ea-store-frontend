@@ -13,9 +13,9 @@ export const Route = createFileRoute("/category/$slug")({
   },
   head: ({ loaderData }) => ({
     meta: [
-      { title: `${loaderData?.name ?? "Category"} — EA Store` },
+      { title: `${loaderData?.name ?? "Category"} — ForexEA360` },
       { name: "description", content: `Browse ${loaderData?.name ?? ""} products for MT4 and MT5.` },
-      { property: "og:title", content: `${loaderData?.name ?? "Category"} — EA Store` },
+      { property: "og:title", content: `${loaderData?.name ?? "Category"} — ForexEA360` },
       { property: "og:description", content: `Browse ${loaderData?.name ?? ""} products for MT4 and MT5.` },
     ],
   }),
