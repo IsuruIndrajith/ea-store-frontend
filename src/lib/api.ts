@@ -1,5 +1,16 @@
 import { queryOptions } from "@tanstack/react-query";
-import { categories, products, type Product, type Category } from "@/data/products";
+import {
+  categories,
+  products,
+  type Product,
+  type Category,
+  type ProductExtended,
+  type SetReviewData,
+  type SetFile,
+  type ProductFaq,
+} from "@/data/products";
+
+export type { Product, Category, ProductExtended, SetReviewData, SetFile, ProductFaq };
 
 // import.meta.env is only available in the client bundle (Vite replaces it at build time).
 // On the SSR server, fall back to process.env so server-side loaders can reach the backend.
@@ -54,8 +65,14 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
 
 export async function getProducts(): Promise<Product[]> {
   if (!API_URL) return products;
-  const response = await apiRequest<{ data: Product[] }>("/products");
-  return response.data;
+  try {
+    const response = await apiRequest<{ data: Product[] }>("/products");
+    return response.data;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    console.warn("Backend unreachable, using static data.", error);
+    return products;
+  }
 }
 export async function getProduct(slug: string): Promise<Product | null> {
   if (!API_URL) return products.find((p) => p.slug === slug) ?? null;
@@ -64,13 +81,21 @@ export async function getProduct(slug: string): Promise<Product | null> {
     return response.data;
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return null;
-    throw error;
+    if (error instanceof ApiError) throw error;
+    console.warn("Backend unreachable, using static data.", error);
+    return products.find((p) => p.slug === slug) ?? null;
   }
 }
 export async function getCategories(): Promise<Category[]> {
   if (!API_URL) return categories;
-  const response = await apiRequest<{ data: Category[] }>("/categories");
-  return response.data;
+  try {
+    const response = await apiRequest<{ data: Category[] }>("/categories");
+    return response.data;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    console.warn("Backend unreachable, using static data.", error);
+    return categories;
+  }
 }
 
 export const productsQuery = () => queryOptions({ queryKey: ["products"], queryFn: getProducts });

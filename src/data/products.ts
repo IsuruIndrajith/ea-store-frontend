@@ -5,6 +5,58 @@ export interface Category {
   name: string;
 }
 
+export interface ProductFaq {
+  question: string;
+  answer: string;
+}
+
+export interface SetFile {
+  name: string;
+  purpose?: string;
+  values?: Record<string, unknown>[];
+  groups?: string[];
+  risk_params?: string[];
+  differences?: string;
+  limitations?: string;
+}
+
+export interface ProductExtended {
+  intro?: string;
+  first_hand_test_results?: string;
+  key_features?: (string | { title?: string; text?: string })[];
+  why_buy_this?: (string | { title?: string; text?: string })[];
+  honest_limitation?: string;
+  why_different?: string;
+  strategy_logic?: (string | { title?: string; text?: string })[];
+  risk_controls?: (string | { title?: string; text?: string })[];
+  risk_disclaimer_line?: string;
+  optimized_settings_table?: Record<string, unknown>[];
+  install_steps?: (string | { step?: string; text?: string })[];
+  is_it_worth_it?: string;
+  telegram_support_line?: string;
+  reviewed_by_closer?: string;
+  author_info?: string;
+  reviewed_by_author_name?: string;
+  reviewed_by_author_profile_link?: string;
+  faqs?: ProductFaq[];
+}
+
+export interface SetReviewData {
+  focus_keyword?: string;
+  seo_introduction?: string;
+  specs_table?: Record<string, unknown>[];
+  set_comparison_table?: Record<string, unknown>[];
+  important_parameters?: Record<string, unknown>[];
+  requirements_table?: Record<string, unknown>[];
+  load_set_steps?: (string | Record<string, unknown>)[];
+  customization_guidance?: (string | Record<string, unknown>)[];
+  who_should_use?: string[];
+  final_verdict?: string;
+  risk_disclaimer?: string;
+  set_files?: SetFile[];
+  faqs?: ProductFaq[];
+}
+
 // Mirrors a Laravel JSON resource for a product.
 export interface Product {
   id: number;
@@ -22,7 +74,13 @@ export interface Product {
   reviews: number;
   hue: number;
   description: string;
+  meta_title?: string;
+  meta_description?: string;
   features: string[];
+  vendor_url?: string;
+  myfxbook_link?: string;
+  extended?: ProductExtended;
+  set_review_data?: SetReviewData;
   is_purchasable?: boolean;
 }
 
