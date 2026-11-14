@@ -12,4 +12,16 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      proxy: {
+        // Forward /images requests to the Laravel backend so images placed in
+        // ea-store/public/images/ are reachable from the frontend dev server.
+        "/images": {
+          target: "http://localhost:9000",
+          changeOrigin: true,
+        },
+      },
+    },
+  },
 });

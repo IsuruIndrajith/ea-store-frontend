@@ -3,6 +3,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Check, ShoppingCart, Star, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { productQuery, productsQuery, discount, money } from "@/lib/api";
 import type { ProductExtended, ProductImage, SetReviewData, ProductFaq, SetFile } from "@/lib/api";
 import { ProductArt, ProductCard } from "@/components/ProductCard";
@@ -204,146 +206,84 @@ function ImageGallery({ images }: { images: ProductImage[] }) {
 
 // ─── Markdown renderer ───────────────────────────────────────────────────────
 
-function Inline({ t }: { t: string }) {
-  const parts = t.split(/(\*\*[^*]+\*\*)/g);
-  if (parts.length === 1) return <>{t}</>;
-  return (
-    <>
-      {parts.map((p, i) =>
-        p.startsWith("**") && p.endsWith("**") ? (
-          <strong key={i}>{p.slice(2, -2)}</strong>
-        ) : (
-          p
-        ),
-      )}
-    </>
-  );
-}
-
 function MarkdownBlock({ md, className }: { md: string; className?: string }) {
   if (!md?.trim()) return null;
-
-  type Block =
-    | { type: "h2"; text: string }
-    | { type: "h3"; text: string }
-    | { type: "ul"; items: string[] }
-    | { type: "ol"; items: string[] }
-    | { type: "table"; rows: string[][] }
-    | { type: "p"; text: string };
-
-  const blocks: Block[] = [];
-  let ulBuf: string[] | null = null;
-  let olBuf: string[] | null = null;
-  let tableBuf: string[][] | null = null;
-
-  const flushLists = () => {
-    if (ulBuf) { blocks.push({ type: "ul", items: ulBuf }); ulBuf = null; }
-    if (olBuf) { blocks.push({ type: "ol", items: olBuf }); olBuf = null; }
-  };
-  const flushTable = () => {
-    if (tableBuf) { blocks.push({ type: "table", rows: tableBuf }); tableBuf = null; }
-  };
-
-  for (const line of md.split("\n")) {
-    const trimmed = line.trim();
-
-    if (trimmed.startsWith("|")) {
-      const cells = trimmed.slice(1, -1).split("|").map((c) => c.trim());
-      if (cells.every((c) => /^[-:\s]+$/.test(c))) continue; // separator row
-      flushLists();
-      if (!tableBuf) tableBuf = [];
-      tableBuf.push(cells);
-      continue;
-    }
-    flushTable();
-
-    if (!trimmed) { flushLists(); continue; }
-
-    if (trimmed.startsWith("### ")) {
-      flushLists();
-      blocks.push({ type: "h3", text: trimmed.slice(4) });
-    } else if (trimmed.startsWith("## ")) {
-      flushLists();
-      blocks.push({ type: "h2", text: trimmed.slice(3) });
-    } else if (/^[-*] /.test(trimmed)) {
-      if (olBuf) { blocks.push({ type: "ol", items: olBuf }); olBuf = null; }
-      if (!ulBuf) ulBuf = [];
-      ulBuf.push(trimmed.slice(2));
-    } else if (/^\d+\.\s/.test(trimmed)) {
-      if (ulBuf) { blocks.push({ type: "ul", items: ulBuf }); ulBuf = null; }
-      if (!olBuf) olBuf = [];
-      olBuf.push(trimmed.replace(/^\d+\.\s+/, ""));
-    } else {
-      flushLists();
-      blocks.push({ type: "p", text: trimmed });
-    }
-  }
-  flushLists();
-  flushTable();
-
   return (
-    <div className={`space-y-3 ${className ?? ""}`}>
-      {blocks.map((b, i) => {
-        if (b.type === "h2")
-          return <h3 key={i} className="font-bold text-foreground mt-4">{b.text}</h3>;
-        if (b.type === "h3")
-          return <h4 key={i} className="font-semibold text-foreground mt-3 text-sm">{b.text}</h4>;
-        if (b.type === "ul")
-          return (
-            <ul key={i} className="list-disc list-inside space-y-1">
-              {b.items.map((it, j) => (
-                <li key={j} className="text-sm text-muted-foreground">
-                  <Inline t={it} />
-                </li>
-              ))}
-            </ul>
-          );
-        if (b.type === "ol")
-          return (
-            <ol key={i} className="list-decimal list-inside space-y-1">
-              {b.items.map((it, j) => (
-                <li key={j} className="text-sm text-muted-foreground">
-                  <Inline t={it} />
-                </li>
-              ))}
-            </ol>
-          );
-        if (b.type === "table") {
-          const [header, ...rows] = b.rows;
-          if (!header?.length) return null;
-          return (
-            <div key={i} className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr>
-                    {header.map((h, j) => (
-                      <th key={j} className="text-left px-3 py-2 border-b bg-muted/30 font-medium">
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row, ri) => (
-                    <tr key={ri} className="border-b last:border-0 hover:bg-muted/20">
-                      {row.map((cell, ci) => (
-                        <td key={ci} className="px-3 py-2 text-muted-foreground">
-                          {cell}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+    <div className={`prose-ea space-y-3 ${className ?? ""}`}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h2: ({ children }) => (
+            <h3 className="font-bold text-foreground mt-4">{children}</h3>
+          ),
+          h3: ({ children }) => (
+            <h4 className="font-semibold text-foreground mt-3 text-sm">{children}</h4>
+          ),
+          h4: ({ children }) => (
+            <h5 className="font-semibold text-foreground mt-2 text-sm">{children}</h5>
+          ),
+          p: ({ children }) => (
+            <p className="leading-relaxed text-sm text-muted-foreground">{children}</p>
+          ),
+          ul: ({ children }) => (
+            <ul className="list-disc list-inside space-y-1">{children}</ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal list-inside space-y-1">{children}</ol>
+          ),
+          li: ({ children }) => (
+            <li className="text-sm text-muted-foreground">{children}</li>
+          ),
+          strong: ({ children }) => (
+            <strong className="font-semibold text-foreground">{children}</strong>
+          ),
+          a: ({ href, children }) => (
+            <a href={href} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:opacity-80">
+              {children}
+            </a>
+          ),
+          img: ({ src, alt }) => (
+            <figure className="my-4">
+              <img
+                src={src}
+                alt={alt ?? ""}
+                className="w-full rounded-xl border object-cover max-h-[480px]"
+              />
+              {alt && (
+                <figcaption className="mt-1.5 text-center text-xs text-muted-foreground">
+                  {alt}
+                </figcaption>
+              )}
+            </figure>
+          ),
+          table: ({ children }) => (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">{children}</table>
             </div>
-          );
-        }
-        return (
-          <p key={i} className="leading-relaxed text-sm text-muted-foreground">
-            <Inline t={b.text} />
-          </p>
-        );
-      })}
+          ),
+          thead: ({ children }) => <thead>{children}</thead>,
+          tbody: ({ children }) => <tbody>{children}</tbody>,
+          tr: ({ children }) => (
+            <tr className="border-b last:border-0 hover:bg-muted/20">{children}</tr>
+          ),
+          th: ({ children }) => (
+            <th className="text-left px-3 py-2 border-b bg-muted/30 font-medium">{children}</th>
+          ),
+          td: ({ children }) => (
+            <td className="px-3 py-2 text-muted-foreground">{children}</td>
+          ),
+          code: ({ children }) => (
+            <code className="rounded bg-muted/40 px-1 py-0.5 text-xs font-mono">{children}</code>
+          ),
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-2 border-primary/40 pl-3 italic text-muted-foreground">
+              {children}
+            </blockquote>
+          ),
+        }}
+      >
+        {md}
+      </ReactMarkdown>
     </div>
   );
 }

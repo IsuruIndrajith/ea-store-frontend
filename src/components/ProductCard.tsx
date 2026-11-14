@@ -6,6 +6,27 @@ import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 
 export function ProductArt({ p, large = false }: { p: Product; large?: boolean }) {
+  if (p.thumbnail_url) {
+    return (
+      <div className="relative aspect-square overflow-hidden rounded-xl">
+        <img
+          src={p.thumbnail_url}
+          alt={p.name}
+          className="h-full w-full object-cover"
+        />
+        <span className="absolute left-3 top-3 w-fit rounded-full bg-background/70 px-2.5 py-1 text-xs font-semibold backdrop-blur">
+          {p.platform}
+        </span>
+        {p.growth > 0 && (
+          <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-background/70 px-2.5 py-1 text-xs font-bold text-primary backdrop-blur">
+            <TrendingUp className="h-3 w-3" />
+            +{p.growth}%
+          </span>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       className="relative flex aspect-square flex-col justify-between overflow-hidden rounded-xl p-5"

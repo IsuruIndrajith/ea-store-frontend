@@ -96,6 +96,7 @@ export interface Product {
   id: number;
   slug: string;
   name: string;
+  thumbnail_url?: string;
   version: string;
   platform: Platform;
   market: string;
