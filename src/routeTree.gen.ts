@@ -12,9 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as SettingReviewsRouteImport } from './routes/setting-reviews'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
+import { Route as SettingReviewsIndexRouteImport } from './routes/setting-reviews.index'
+import { Route as SettingReviewsSlugRouteImport } from './routes/setting-reviews.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,9 +35,19 @@ const CartRoute = CartRouteImport.update({
   path: '/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingReviewsRoute = SettingReviewsRouteImport.update({
+  id: '/setting-reviews',
+  path: '/setting-reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategorySlugRoute = CategorySlugRouteImport.update({
@@ -46,54 +60,98 @@ const ProductSlugRoute = ProductSlugRouteImport.update({
   path: '/product/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingReviewsIndexRoute = SettingReviewsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SettingReviewsRoute,
+} as any)
+const SettingReviewsSlugRoute = SettingReviewsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => SettingReviewsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/cart': typeof CartRoute
+  '/setting-reviews': typeof SettingReviewsRouteWithChildren
   '/shop': typeof ShopRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/setting-reviews/$slug': typeof SettingReviewsSlugRoute
+  '/setting-reviews/': typeof SettingReviewsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/cart': typeof CartRoute
   '/shop': typeof ShopRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/setting-reviews/$slug': typeof SettingReviewsSlugRoute
+  '/setting-reviews': typeof SettingReviewsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
   '/cart': typeof CartRoute
+  '/setting-reviews': typeof SettingReviewsRouteWithChildren
   '/shop': typeof ShopRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/product/$slug': typeof ProductSlugRoute
+  '/setting-reviews/$slug': typeof SettingReviewsSlugRoute
+  '/setting-reviews/': typeof SettingReviewsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/account' | '/cart' | '/shop' | '/category/$slug' | '/product/$slug'
+    | '/'
+    | '/account'
+    | '/cart'
+    | '/setting-reviews'
+    | '/shop'
+    | '/blog/$slug'
+    | '/category/$slug'
+    | '/product/$slug'
+    | '/setting-reviews/$slug'
+    | '/setting-reviews/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/account' | '/cart' | '/shop' | '/category/$slug' | '/product/$slug'
+    | '/'
+    | '/account'
+    | '/cart'
+    | '/shop'
+    | '/blog/$slug'
+    | '/category/$slug'
+    | '/product/$slug'
+    | '/setting-reviews/$slug'
+    | '/setting-reviews'
   id:
     | '__root__'
     | '/'
     | '/account'
     | '/cart'
+    | '/setting-reviews'
     | '/shop'
+    | '/blog/$slug'
     | '/category/$slug'
     | '/product/$slug'
+    | '/setting-reviews/$slug'
+    | '/setting-reviews/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
   CartRoute: typeof CartRoute
+  SettingReviewsRoute: typeof SettingReviewsRouteWithChildren
   ShopRoute: typeof ShopRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   CategorySlugRoute: typeof CategorySlugRoute
   ProductSlugRoute: typeof ProductSlugRoute
 }
@@ -121,11 +179,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/setting-reviews': {
+      id: '/setting-reviews'
+      path: '/setting-reviews'
+      fullPath: '/setting-reviews'
+      preLoaderRoute: typeof SettingReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/category/$slug': {
@@ -142,14 +214,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/setting-reviews/': {
+      id: '/setting-reviews/'
+      path: '/'
+      fullPath: '/setting-reviews/'
+      preLoaderRoute: typeof SettingReviewsIndexRouteImport
+      parentRoute: typeof SettingReviewsRoute
+    }
+    '/setting-reviews/$slug': {
+      id: '/setting-reviews/$slug'
+      path: '/$slug'
+      fullPath: '/setting-reviews/$slug'
+      preLoaderRoute: typeof SettingReviewsSlugRouteImport
+      parentRoute: typeof SettingReviewsRoute
+    }
   }
 }
+
+interface SettingReviewsRouteChildren {
+  SettingReviewsSlugRoute: typeof SettingReviewsSlugRoute
+  SettingReviewsIndexRoute: typeof SettingReviewsIndexRoute
+}
+
+const SettingReviewsRouteChildren: SettingReviewsRouteChildren = {
+  SettingReviewsSlugRoute: SettingReviewsSlugRoute,
+  SettingReviewsIndexRoute: SettingReviewsIndexRoute,
+}
+
+const SettingReviewsRouteWithChildren = SettingReviewsRoute._addFileChildren(
+  SettingReviewsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
   CartRoute: CartRoute,
+  SettingReviewsRoute: SettingReviewsRouteWithChildren,
   ShopRoute: ShopRoute,
+  BlogSlugRoute: BlogSlugRoute,
   CategorySlugRoute: CategorySlugRoute,
   ProductSlugRoute: ProductSlugRoute,
 }

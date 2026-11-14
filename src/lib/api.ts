@@ -94,5 +94,59 @@ export const productQuery = (slug: string, previewToken?: string) =>
 export const categoriesQuery = () =>
   queryOptions({ queryKey: ["categories"], queryFn: getCategories });
 
+// ─── Set Reviews ─────────────────────────────────────────────────────────────
+
+export interface SetReview {
+  id: number;
+  slug: string;
+  product_slug?: string;
+  h1?: string;
+  meta_title?: string;
+  meta_description?: string;
+  focus_keyword?: string;
+  thumbnail_url?: string;
+  is_published: boolean;
+  content?: {
+    seo_introduction?: string;
+    specs_table?: string | Record<string, unknown>[];
+    set_comparison_table?: string | Record<string, unknown>[];
+    requirements_table?: string | Record<string, unknown>[];
+    customization_guidance?: string;
+    customization_cautions?: string;
+    config_strengths_limitations?: string;
+    who_should_use?: string;
+    final_verdict?: string;
+    product_page_cta?: string;
+    review_methodology?: string;
+    risk_disclaimer?: string;
+    load_set_steps?: Array<{ platform: string; steps: string }>;
+    detailed_parameter_analysis?: Array<{ group: string; table: string }>;
+    set_files?: Array<{ name: string; body_md?: string }>;
+    faqs?: Array<{ question: string; answer: string }>;
+    images?: Array<{ url: string; alt_text?: string; caption?: string; section?: string }>;
+  };
+}
+
+export async function getSetReview(slug: string, previewToken?: string): Promise<SetReview | null> {
+  const qs = previewToken ? `?preview_token=${encodeURIComponent(previewToken)}` : "";
+  try {
+    const response = await apiRequest<{ data: SetReview }>(`/set-reviews/${encodeURIComponent(slug)}${qs}`);
+    return response.data;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
+}
+
+export async function getSetReviews(): Promise<SetReview[]> {
+  const response = await apiRequest<{ data: SetReview[] }>("/set-reviews");
+  return response.data;
+}
+
+export const setReviewQuery = (slug: string, previewToken?: string) =>
+  queryOptions({ queryKey: ["set-reviews", slug, previewToken], queryFn: () => getSetReview(slug, previewToken) });
+export const setReviewsQuery = () =>
+  queryOptions({ queryKey: ["set-reviews"], queryFn: getSetReviews });
+
 export const discount = (p: Product) => Math.round((1 - p.sale_price / p.price) * 100);
 export const money = (n: number) => `$${n.toFixed(2)}`;

@@ -60,9 +60,16 @@ export function SiteHeader() {
           <Link
             to="/shop"
             className="transition-colors hover:text-foreground"
-            activeProps={{ className: "text-foreground" }}
+            activeProps={{ className: "text-foreground font-medium" }}
           >
             Expert Advisors
+          </Link>
+          <Link
+            to="/setting-reviews"
+            className="transition-colors hover:text-foreground"
+            activeProps={{ className: "text-foreground font-medium" }}
+          >
+            Setting Reviews
           </Link>
           <span className="cursor-default transition-colors hover:text-foreground">Guides</span>
           <span className="cursor-default transition-colors hover:text-foreground">Reviews</span>
@@ -113,11 +120,24 @@ export function SiteFooter() {
             </span>
           </Link>
           <nav className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-            <Link to="/shop"  className="transition hover:text-primary">Expert Advisors</Link>
-            <Link to="/shop"  className="transition hover:text-primary">Guides</Link>
-            <Link to="/shop"  className="transition hover:text-primary">Reviews</Link>
-            <Link to="/cart"  className="transition hover:text-primary">Cart</Link>
-            <Link to="/account" className="transition hover:text-primary">Account</Link>
+            <Link to="/shop" className="transition hover:text-primary">
+              Expert Advisors
+            </Link>
+            <Link to="/setting-reviews" className="transition hover:text-primary">
+              Setting Reviews
+            </Link>
+            <Link to="/shop" className="transition hover:text-primary">
+              Guides
+            </Link>
+            <Link to="/shop" className="transition hover:text-primary">
+              Reviews
+            </Link>
+            <Link to="/cart" className="transition hover:text-primary">
+              Cart
+            </Link>
+            <Link to="/account" className="transition hover:text-primary">
+              Account
+            </Link>
           </nav>
         </div>
         <p className="text-xs text-muted-foreground">

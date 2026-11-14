@@ -396,7 +396,10 @@ function FeaturesTab({ features, ext }: { features: string[]; ext?: ProductExten
   );
 }
 
-function SetReviewTab({ sr, vendorUrl }: { sr?: SetReviewData | undefined; vendorUrl?: string | undefined }) {
+function SetReviewTab({ sr, vendorUrl, productSlug, setReviewSlug }: { sr?: SetReviewData | undefined; vendorUrl?: string | undefined; productSlug?: string; setReviewSlug?: string }) {
+  // Prefer the explicit published slug from the product API, fall back to the slug embedded in set_review_data
+  const reviewSlug = setReviewSlug ?? sr?.recommended_slug ?? null;
+
   if (!sr) {
     return (
       <p className="text-muted-foreground">
@@ -424,6 +427,21 @@ function SetReviewTab({ sr, vendorUrl }: { sr?: SetReviewData | undefined; vendo
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
+      {reviewSlug && (
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 flex items-center justify-between gap-4">
+          <p className="text-sm text-foreground/80">
+            The full setting review has detailed configuration guides, set file breakdowns and FAQs.
+          </p>
+          <Link
+            to="/setting-reviews/$slug"
+            params={{ slug: reviewSlug }}
+            search={{}}
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground hover:opacity-90"
+          >
+            Full Setting Review <ExternalLink className="h-3 w-3" />
+          </Link>
+        </div>
+      )}
       {sr.seo_introduction && <MarkdownBlock md={sr.seo_introduction} />}
 
       {sr.specs_table != null && (
@@ -771,7 +789,7 @@ function ProductPage() {
           )}
           {tab === "Features" && <FeaturesTab features={p.features} ext={p.extended} />}
           {tab === "Set Review" && (
-            <SetReviewTab sr={p.set_review_data} vendorUrl={p.vendor_url} />
+            <SetReviewTab sr={p.set_review_data} vendorUrl={p.vendor_url} productSlug={p.slug} setReviewSlug={p.set_review_slug} />
           )}
           {tab === "Install Guide" && <InstallGuideTab ext={p.extended} />}
         </div>

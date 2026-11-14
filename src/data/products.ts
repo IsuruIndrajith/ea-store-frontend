@@ -117,6 +117,7 @@ export interface Product {
   myfxbook_link?: string;
   extended?: ProductExtended;
   set_review_data?: SetReviewData;
+  set_review_slug?: string;
   is_purchasable?: boolean;
 }
 
