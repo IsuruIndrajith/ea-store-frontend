@@ -737,6 +737,11 @@ function ProductPage() {
               View on vendor site <ExternalLink className="h-3 w-3" />
             </a>
           )}
+          {p.short_description && (
+            <p className="mt-5 text-sm leading-6 text-foreground/75 border-t border-border/40 pt-5">
+              {p.short_description}
+            </p>
+          )}
         </div>
       </div>
 
