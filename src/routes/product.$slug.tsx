@@ -214,25 +214,25 @@ function MarkdownBlock({ md, className }: { md: string; className?: string }) {
         remarkPlugins={[remarkGfm]}
         components={{
           h2: ({ children }) => (
-            <h3 className="font-bold text-foreground mt-4">{children}</h3>
+            <h3 className="text-xl font-bold text-foreground mt-8 mb-3">{children}</h3>
           ),
           h3: ({ children }) => (
-            <h4 className="font-semibold text-foreground mt-3 text-sm">{children}</h4>
+            <h4 className="text-lg font-semibold text-foreground mt-6 mb-2">{children}</h4>
           ),
           h4: ({ children }) => (
-            <h5 className="font-semibold text-foreground mt-2 text-sm">{children}</h5>
+            <h5 className="text-base font-semibold text-foreground mt-4 mb-1">{children}</h5>
           ),
           p: ({ children }) => (
-            <p className="leading-relaxed text-sm text-muted-foreground">{children}</p>
+            <p className="text-base leading-7 text-foreground/90">{children}</p>
           ),
           ul: ({ children }) => (
-            <ul className="list-disc list-inside space-y-1">{children}</ul>
+            <ul className="list-disc list-outside ml-5 space-y-2">{children}</ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal list-inside space-y-1">{children}</ol>
+            <ol className="list-decimal list-outside ml-5 space-y-2">{children}</ol>
           ),
           li: ({ children }) => (
-            <li className="text-sm text-muted-foreground">{children}</li>
+            <li className="text-base text-foreground/90 leading-7">{children}</li>
           ),
           strong: ({ children }) => (
             <strong className="font-semibold text-foreground">{children}</strong>
@@ -294,7 +294,7 @@ function DescriptionTab({ ext, description }: { ext?: ProductExtended | undefine
   // AI-generated markdown description takes priority
   if (ext?.description_md) {
     return (
-      <div className="max-w-3xl space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8">
         <section>
           <MarkdownBlock md={ext.description_md} />
         </section>
@@ -310,19 +310,19 @@ function DescriptionTab({ ext, description }: { ext?: ProductExtended | undefine
 
   // Legacy manually-filled structure
   if (!ext?.intro && !ext?.key_features && !ext?.why_buy_this) {
-    return <p className="max-w-3xl leading-relaxed">{description}</p>;
+    return <p className="max-w-4xl mx-auto text-base leading-7 text-foreground/90">{description}</p>;
   }
   return (
-    <div className="max-w-3xl space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8">
       {ext.intro && (
         <section>
-          <p className="leading-relaxed">{ext.intro}</p>
+          <p className="text-base leading-7 text-foreground/90">{ext.intro}</p>
         </section>
       )}
       {ext.first_hand_test_results && (
         <section>
-          <h3 className="font-semibold text-foreground mb-2">First-Hand Test Results</h3>
-          <p className="leading-relaxed text-muted-foreground">{ext.first_hand_test_results}</p>
+          <h3 className="text-xl font-bold text-foreground mb-3">First-Hand Test Results</h3>
+          <p className="text-base leading-7 text-foreground/90">{ext.first_hand_test_results}</p>
         </section>
       )}
       {!!ext.key_features?.length && (
@@ -377,11 +377,11 @@ function DescriptionTab({ ext, description }: { ext?: ProductExtended | undefine
 
 function FeaturesTab({ features, ext }: { features: string[]; ext?: ProductExtended | undefined }) {
   return (
-    <div className="max-w-3xl space-y-6">
-      <ul className="space-y-2">
+    <div className="max-w-4xl mx-auto space-y-6">
+      <ul className="space-y-3">
         {features.map((f) => (
-          <li key={f} className="flex gap-2 text-sm">
-            <Check className="h-4 w-4 text-gain mt-0.5" />
+          <li key={f} className="flex gap-2.5 text-base text-foreground/90">
+            <Check className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
             {f}
           </li>
         ))}
@@ -423,7 +423,7 @@ function SetReviewTab({ sr, vendorUrl }: { sr?: SetReviewData | undefined; vendo
   };
 
   return (
-    <div className="max-w-3xl space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8">
       {sr.seo_introduction && <MarkdownBlock md={sr.seo_introduction} />}
 
       {sr.specs_table != null && (
@@ -626,7 +626,7 @@ function InstallGuideTab({ ext }: { ext?: ProductExtended | undefined }) {
     );
   }
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       {!!ext.install_steps?.length && (
         <section>
           <h3 className="font-semibold text-foreground mb-3">Installation Steps</h3>
@@ -639,11 +639,11 @@ function InstallGuideTab({ ext }: { ext?: ProductExtended | undefined }) {
                     (step as Record<string, unknown>)?.["text"] ??
                     "") as string;
               return (
-                <li key={i} className="flex gap-3 text-sm">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center">
+                <li key={i} className="flex gap-3 text-base">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-primary/10 text-primary text-sm font-bold flex items-center justify-center">
                     {i + 1}
                   </span>
-                  <span className="pt-0.5 text-muted-foreground">{text}</span>
+                  <span className="pt-0.5 text-foreground/90 leading-7">{text}</span>
                 </li>
               );
             })}
@@ -760,7 +760,7 @@ function ProductPage() {
             </button>
           ))}
         </div>
-        <div className="py-8 text-muted-foreground">
+        <div className="py-10">
           {tab === "Description" && (
             <DescriptionTab ext={p.extended} description={p.description} />
           )}

@@ -122,7 +122,7 @@ export function SiteFooter() {
         </div>
         <p className="text-xs text-muted-foreground">
           Trading forex involves significant risk and may not be suitable for everyone.
-          Past performance does not guarantee future results. &nbsp;[YOUR COMPANY NAME AND LEGAL LINKS]
+          Past performance does not guarantee future results. &nbsp;ForexEA360 - All right reserved. ©2026
         </p>
       </div>
     </footer>
