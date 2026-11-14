@@ -65,14 +65,8 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
 }
 
 export async function getProducts(): Promise<Product[]> {
-  try {
-    const response = await apiRequest<{ data: Product[] }>("/products");
-    return response.data;
-  } catch (error) {
-    if (error instanceof ApiError) throw error;
-    console.warn("Backend unreachable — showing empty product list.", error);
-    return [];
-  }
+  const response = await apiRequest<{ data: Product[] }>("/products");
+  return response.data;
 }
 export async function getProduct(slug: string, previewToken?: string): Promise<Product | null> {
   const qs = previewToken ? `?preview_token=${encodeURIComponent(previewToken)}` : "";
@@ -90,7 +84,6 @@ export async function getCategories(): Promise<Category[]> {
     return response.data;
   } catch (error) {
     if (error instanceof ApiError) throw error;
-    console.warn("Backend unreachable — showing empty category list.", error);
     return [];
   }
 }

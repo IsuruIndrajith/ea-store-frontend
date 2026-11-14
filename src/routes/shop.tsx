@@ -4,6 +4,25 @@ import { z } from "zod";
 import { productsQuery, categoriesQuery } from "@/lib/api";
 import { ProductCard } from "@/components/ProductCard";
 
+function ShopError({ error }: { error: Error }) {
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-24 text-center">
+      <p className="text-4xl">⚠</p>
+      <h2 className="mt-4 text-xl font-bold">Could not load products</h2>
+      <p className="mt-2 text-sm text-muted-foreground">
+        The store backend is not reachable. Make sure it is running, then refresh.
+      </p>
+      <p className="mt-2 font-mono text-xs text-muted-foreground/60">{error.message}</p>
+      <button
+        onClick={() => window.location.reload()}
+        className="mt-6 rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+      >
+        Refresh
+      </button>
+    </div>
+  );
+}
+
 const searchSchema = z.object({
   q: z.string().optional(),
   cat: z.string().optional(),
@@ -13,6 +32,7 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (s) => searchSchema.parse(s),
+  errorComponent: ({ error }) => <ShopError error={error as Error} />,
   head: () => ({
     meta: [
       { title: "Expert Advisors — ForexEA360" },

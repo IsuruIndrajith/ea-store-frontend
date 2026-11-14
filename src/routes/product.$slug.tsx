@@ -95,7 +95,7 @@ function TextBlock({ value }: { value: unknown }) {
   if (typeof value === "string") return <p className="leading-relaxed">{value}</p>;
   if (typeof value === "object" && value !== null) {
     const v = value as Record<string, unknown>;
-    const text = (v.title ?? v.text ?? v.step ?? "") as string;
+    const text = (v["title"] ?? v["text"] ?? v["step"] ?? "") as string;
     return <p className="leading-relaxed">{text}</p>;
   }
   return null;
@@ -109,9 +109,9 @@ function BulletList({ items, className }: { items: unknown[]; className?: string
         const text =
           typeof item === "string"
             ? item
-            : ((item as Record<string, unknown>)?.title ??
-              (item as Record<string, unknown>)?.text ??
-              (item as Record<string, unknown>)?.step ??
+            : ((item as Record<string, unknown>)?.["title"] ??
+              (item as Record<string, unknown>)?.["text"] ??
+              (item as Record<string, unknown>)?.["step"] ??
               "") as string;
         return (
           <li key={i} className="flex gap-2 text-sm">
@@ -126,7 +126,9 @@ function BulletList({ items, className }: { items: unknown[]; className?: string
 
 function SimpleTable({ rows }: { rows: Record<string, unknown>[] }) {
   if (!rows?.length) return null;
-  const keys = Object.keys(rows[0]);
+  const first = rows[0];
+  if (!first) return null;
+  const keys = Object.keys(first);
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">
@@ -164,6 +166,7 @@ function ImageGallery({ images }: { images: ProductImage[] }) {
   const [active, setActive] = useState(0);
   if (!images.length) return null;
   const main = images[active];
+  if (!main) return null;
   return (
     <div className="mt-10 space-y-3">
       <div className="overflow-hidden rounded-xl border bg-card">
@@ -347,7 +350,7 @@ function MarkdownBlock({ md, className }: { md: string; className?: string }) {
 
 // ─── Tab contents ─────────────────────────────────────────────────────────────
 
-function DescriptionTab({ ext, description }: { ext?: ProductExtended; description: string }) {
+function DescriptionTab({ ext, description }: { ext?: ProductExtended | undefined; description: string }) {
   // AI-generated markdown description takes priority
   if (ext?.description_md) {
     return (
@@ -432,7 +435,7 @@ function DescriptionTab({ ext, description }: { ext?: ProductExtended; descripti
   );
 }
 
-function FeaturesTab({ features, ext }: { features: string[]; ext?: ProductExtended }) {
+function FeaturesTab({ features, ext }: { features: string[]; ext?: ProductExtended | undefined }) {
   return (
     <div className="max-w-3xl space-y-6">
       <ul className="space-y-2">
@@ -453,7 +456,7 @@ function FeaturesTab({ features, ext }: { features: string[]; ext?: ProductExten
   );
 }
 
-function SetReviewTab({ sr, vendorUrl }: { sr?: SetReviewData; vendorUrl?: string }) {
+function SetReviewTab({ sr, vendorUrl }: { sr?: SetReviewData | undefined; vendorUrl?: string | undefined }) {
   if (!sr) {
     return (
       <p className="text-muted-foreground">
@@ -674,8 +677,8 @@ function SetReviewTab({ sr, vendorUrl }: { sr?: SetReviewData; vendorUrl?: strin
   );
 }
 
-function InstallGuideTab({ ext }: { ext?: ProductExtended }) {
-  if (!ext?.install_steps?.length && !ext?.load_set_steps) {
+function InstallGuideTab({ ext }: { ext?: ProductExtended | undefined }) {
+  if (!ext?.install_steps?.length) {
     return (
       <p className="text-muted-foreground">
         Installation guide will appear here once the product page is published.
@@ -692,8 +695,8 @@ function InstallGuideTab({ ext }: { ext?: ProductExtended }) {
               const text =
                 typeof step === "string"
                   ? step
-                  : ((step as Record<string, unknown>)?.step ??
-                    (step as Record<string, unknown>)?.text ??
+                  : ((step as Record<string, unknown>)?.["step"] ??
+                    (step as Record<string, unknown>)?.["text"] ??
                     "") as string;
               return (
                 <li key={i} className="flex gap-3 text-sm">

@@ -4,6 +4,25 @@ import { ChevronRight } from "lucide-react";
 import { productsQuery, categoriesQuery } from "@/lib/api";
 import { ProductCard } from "@/components/ProductCard";
 
+function HomeError({ error }: { error: Error }) {
+  return (
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
+      <p className="text-4xl">⚠</p>
+      <h2 className="text-xl font-bold">Store backend not reachable</h2>
+      <p className="text-sm text-muted-foreground">
+        Make sure the Store backend is running on port 9000, then refresh.
+      </p>
+      <p className="font-mono text-xs text-muted-foreground/60">{error.message}</p>
+      <button
+        onClick={() => window.location.reload()}
+        className="rounded-full bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+      >
+        Refresh
+      </button>
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -26,6 +45,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(categoriesQuery()),
     ]);
   },
+  errorComponent: ({ error }) => <HomeError error={error as Error} />,
   component: Index,
 });
 

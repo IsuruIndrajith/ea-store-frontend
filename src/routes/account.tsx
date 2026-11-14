@@ -200,7 +200,7 @@ function AccountPage() {
         </>
       ) : (
         <div className="mx-auto max-w-md rounded-2xl border bg-card p-6">
-          <p className="text-sm text-muted-foreground">EA Store</p>
+          <p className="text-sm text-muted-foreground">ForexEA360</p>
           <h1 className="mt-1 text-3xl font-bold">
             {mode === "register" ? "Create your account" : "Sign in"}
           </h1>
@@ -257,7 +257,7 @@ function AccountPage() {
             <button
               type="submit"
               disabled={busy}
-              className="w-full rounded-lg bg-gold px-4 py-3 font-semibold text-primary-foreground disabled:opacity-50"
+              className="w-full rounded-full bg-primary px-4 py-3 font-semibold text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
             >
               {busy ? "Please wait..." : mode === "register" ? "Create account" : "Sign in"}
             </button>

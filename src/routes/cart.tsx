@@ -68,6 +68,7 @@ function CartPage() {
                 <Link
                   to="/product/$slug"
                   params={{ slug: p.slug }}
+                  search={{ preview_token: undefined }}
                   className="flex-1 font-semibold hover:text-primary"
                 >
                   {p.name} {p.version}

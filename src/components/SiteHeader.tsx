@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, UserRound } from "lucide-react";
 import { useCart } from "@/lib/cart";
 
 /** Inline SVG matching the ForexEA360 logo — partial-circle frame + ascending candlesticks */
@@ -69,7 +69,14 @@ export function SiteHeader() {
         </nav>
 
         {/* Right actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <Link
+            to="/account"
+            className="rounded-lg border border-border/60 p-2 text-muted-foreground transition hover:border-primary hover:text-primary"
+            aria-label="Account"
+          >
+            <UserRound className="h-[1.1rem] w-[1.1rem]" />
+          </Link>
           <Link
             to="/cart"
             className="relative rounded-lg border border-border/60 p-2 text-muted-foreground transition hover:border-primary hover:text-primary"
