@@ -173,7 +173,7 @@ function ImageGallery({ images }: { images: ProductImage[] }) {
     <div className="mt-10 space-y-3">
       <div className="overflow-hidden rounded-xl border bg-card">
         <img
-          src={main.url}
+          src={imgUrl(main.url)}
           alt={main.alt_text ?? main.caption ?? "Product image"}
           className="w-full object-cover max-h-[480px]"
         />
@@ -192,7 +192,7 @@ function ImageGallery({ images }: { images: ProductImage[] }) {
               }`}
             >
               <img
-                src={img.url}
+                src={imgUrl(img.url)}
                 alt={img.alt_text ?? `Thumbnail ${i + 1}`}
                 className="h-full w-full object-cover"
               />
