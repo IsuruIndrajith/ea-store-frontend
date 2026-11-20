@@ -3,7 +3,7 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ExternalLink, ArrowLeft, BookOpen } from "lucide-react";
-import { setReviewQuery, productQuery, type SetReview } from "@/lib/api";
+import { setReviewQuery, productQuery, imgUrl, type SetReview } from "@/lib/api";
 
 export const Route = createFileRoute("/setting-reviews/$slug")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -61,7 +61,7 @@ function MD({ md, className }: { md: string; className?: string }) {
           ),
           img: ({ src, alt }) => (
             <figure className="my-4">
-              <img src={src} alt={alt ?? ""} className="w-full rounded-xl border object-cover max-h-[480px]" />
+              <img src={imgUrl(src)} alt={alt ?? ""} className="w-full rounded-xl border object-cover max-h-[480px]" />
               {alt && <figcaption className="mt-1.5 text-center text-xs text-muted-foreground">{alt}</figcaption>}
             </figure>
           ),

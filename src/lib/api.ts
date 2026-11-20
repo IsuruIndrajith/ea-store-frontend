@@ -150,3 +150,14 @@ export const setReviewsQuery = () =>
 
 export const discount = (p: Product) => Math.round((1 - p.sale_price / p.price) * 100);
 export const money = (n: number) => `$${n.toFixed(2)}`;
+
+/** Converts a root-relative image path ( /images/eas/... ) to an absolute URL
+ *  using the backend API origin. Already-absolute URLs pass through unchanged. */
+export function imgUrl(path: string | null | undefined): string | undefined {
+  if (!path) return undefined;
+  if (path.startsWith("http")) return path;
+  if (path.startsWith("/") && API_URL) {
+    return API_URL.replace(/\/$/, "") + path;
+  }
+  return path;
+}

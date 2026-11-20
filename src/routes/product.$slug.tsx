@@ -5,7 +5,7 @@ import { Check, ShoppingCart, Star, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { productQuery, productsQuery, discount, money } from "@/lib/api";
+import { productQuery, productsQuery, discount, money, imgUrl } from "@/lib/api";
 import type { ProductExtended, ProductImage, SetReviewData, ProductFaq, SetFile } from "@/lib/api";
 import { ProductArt, ProductCard } from "@/components/ProductCard";
 import { useCart } from "@/lib/cart";
@@ -245,7 +245,7 @@ function MarkdownBlock({ md, className }: { md: string; className?: string }) {
           img: ({ src, alt }) => (
             <figure className="my-4">
               <img
-                src={src}
+                src={imgUrl(src)}
                 alt={alt ?? ""}
                 className="w-full rounded-xl border object-cover max-h-[480px]"
               />
